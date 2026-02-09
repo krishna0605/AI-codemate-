@@ -2,6 +2,7 @@ import { AIConfig } from './config';
 import { callGemini } from './providers/gemini';
 import { callOpenRouter } from './providers/openrouter';
 import { callOllama } from './providers/ollama';
+import { callHuggingFace } from './providers/huggingface';
 
 export class AIService {
   private config: AIConfig;
@@ -101,6 +102,9 @@ ${code.slice(0, 4000)}
           break;
         case 'ollama':
           response = await callOllama(prompt, this.config);
+          break;
+        case 'huggingface':
+          response = await callHuggingFace(prompt, this.config);
           break;
         default:
           throw new Error(`Unsupported provider: ${this.config.provider}`);

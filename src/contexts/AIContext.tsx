@@ -11,8 +11,8 @@ interface AIContextType {
 }
 
 const DEFAULT_CONFIG: AIConfig = {
-  provider: 'gemini',
-  ...PROVIDER_CONFIGS.gemini,
+  provider: 'huggingface',
+  ...PROVIDER_CONFIGS.huggingface,
 } as AIConfig;
 
 const AIContext = createContext<AIContextType | null>(null);
@@ -23,7 +23,7 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Load config from localStorage if available
-    const savedConfig = localStorage.getItem('ai-config-v4');
+    const savedConfig = localStorage.getItem('ai-config-v5');
     if (savedConfig) {
       try {
         const parsed = JSON.parse(savedConfig);
@@ -64,7 +64,7 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
     const updated = { ...config, ...newConfig } as AIConfig;
     setConfig(updated);
     service.updateConfig(updated);
-    localStorage.setItem('ai-config-v4', JSON.stringify(updated));
+    localStorage.setItem('ai-config-v5', JSON.stringify(updated));
   };
 
   return (

@@ -1,4 +1,4 @@
-export type AIProvider = 'gemini' | 'openrouter' | 'ollama';
+export type AIProvider = 'gemini' | 'openrouter' | 'ollama' | 'huggingface';
 
 export interface AIConfig {
   provider: AIProvider;
@@ -28,5 +28,11 @@ export const PROVIDER_CONFIGS: Record<AIProvider, Partial<AIConfig>> = {
     model: 'codellama:7b-code',
     maxTokens: 2048,
     temperature: 0.1,
+  },
+  huggingface: {
+    baseUrl: '/api/ai/chat', // Local proxy
+    model: 'llama3.2',
+    maxTokens: 4096,
+    temperature: 0.7,
   },
 };
