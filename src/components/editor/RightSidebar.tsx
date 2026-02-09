@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Editor from '@monaco-editor/react';
 import { cn } from '@/lib/utils';
 import { useAICommands } from '@/hooks/useAICommands';
@@ -244,7 +246,57 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                             : 'bg-primary/10 border border-primary/20 text-white'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                        ul: ({ node, ...props }) => (
+                          <ul className="list-disc list-inside mb-2" {...props} />
+                        ),
+                        ol: ({ node, ...props }) => (
+                          <ol className="list-decimal list-inside mb-2" {...props} />
+                        ),
+                        li: ({ node, ...props }) => <li className="mb-0.5" {...props} />,
+                        h1: ({ node, ...props }) => (
+                          <h1 className="text-sm font-bold mb-2 mt-4" {...props} />
+                        ),
+                        h2: ({ node, ...props }) => (
+                          <h2 className="text-xs font-bold mb-2 mt-3" {...props} />
+                        ),
+                        h3: ({ node, ...props }) => (
+                          <h3 className="text-xs font-semibold mb-1 mt-2" {...props} />
+                        ),
+                        code: ({ node, inline, className, children, ...props }: any) => {
+                          const match = /language-(\w+)/.exec(className || '');
+                          return !inline ? (
+                            <div className="my-2 rounded-md overflow-hidden border border-border-dark bg-[#1e1e1e]">
+                              <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-border-dark">
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  {match ? match[1] : 'code'}
+                                </span>
+                              </div>
+                              <div className="p-3 overflow-x-auto">
+                                <code
+                                  className={cn('font-mono text-[11px] leading-relaxed', className)}
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              </div>
+                            </div>
+                          ) : (
+                            <code
+                              className="font-mono text-[11px] bg-slate-800/50 px-1 py-0.5 rounded border border-slate-700/50 text-orange-300"
+                              {...props}
+                            >
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
                   </div>
                 </div>
               ))}

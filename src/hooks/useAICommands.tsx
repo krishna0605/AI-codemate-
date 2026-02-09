@@ -62,6 +62,7 @@ export function AICommandsProvider({ children }: { children: ReactNode }) {
 
       setCommandHistory((prev) => [...prev, command]);
       setHistoryIndex(-1);
+      setCurrentInput(''); // Clear input immediately
       addLine('user', command);
 
       if (trimmedCmd.toLowerCase() === 'clear') {
