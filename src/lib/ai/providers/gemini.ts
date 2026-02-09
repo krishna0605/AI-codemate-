@@ -3,7 +3,7 @@ import { generateContent } from '@/app/actions/gemini';
 
 export async function callGemini(prompt: string, config: AIConfig): Promise<string> {
   // We prioritize the model from config, but fallback to 'gemini-1.5-flash' if needed
-  const modelName = config.model || 'gemini-1.5-flash';
+  const modelName = config.model || 'gemini-1.5-flash-001';
 
   try {
     const result = await generateContent(prompt, modelName, {
