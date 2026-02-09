@@ -58,7 +58,7 @@ ${context}
 
 Code:
 \`\`\`${language}
-${code.slice(0, 4000)}
+${code.slice(0, 2000)}
 \`\`\``;
 
     return this.call(prompt);

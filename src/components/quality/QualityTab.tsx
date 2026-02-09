@@ -23,11 +23,14 @@ export const QualityTab: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const diagnostics = getFileDiagnostics(currentFile.path).map((d) => ({
-        message: d.message,
-        startLine: d.startLine,
-        severity: d.severity,
-      }));
+      // usage: Limit diagnostics to top 5 to avoid token limits
+      const diagnostics = getFileDiagnostics(currentFile.path)
+        .slice(0, 5)
+        .map((d) => ({
+          message: d.message,
+          startLine: d.startLine,
+          severity: d.severity,
+        }));
 
       const response = await service.refactor(
         currentFile.content,
