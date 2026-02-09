@@ -38,19 +38,29 @@ export class AIService {
     return this.call(prompt);
   }
 
-  async refactor(code: string, language: string = 'typescript'): Promise<string> {
-    const prompt = `Analyze the following ${language} code and suggest refactoring improvements. Focus on:
-1. Code readability
-2. DRY violations
-3. Function length (suggest splitting if > 30 lines)
-4. Complex conditionals
-5. Naming improvements
+  async refactor(
+    code: string,
+    language: string = 'typescript',
+    diagnostics: { message: string; startLine: number; severity: string }[] = []
+  ): Promise<string> {
+    let context = '';
+    if (diagnostics.length > 0) {
+      const errorList = diagnostics
+        .map((d) => `- Line ${d.startLine}: [${d.severity}] ${d.message}`)
+        .join('\n');
+      context = `\n\nIssues to fix:\n${errorList}\n\nInstruction: Fix the issues listed above. Maintain existing style. Return ONLY the fixed code.`;
+    } else {
+      context = `\n\nInstruction: Analyze the code and suggest refactoring improvements for readability, performance, and best practices. Return ONLY the fixed code.`;
+    }
 
-Be concise and actionable.
+    const prompt = `You are an expert code refactorer.
+${context}
 
+Code:
 \`\`\`${language}
 ${code.slice(0, 4000)}
 \`\`\``;
+
     return this.call(prompt);
   }
 

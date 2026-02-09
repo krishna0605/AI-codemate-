@@ -11,8 +11,8 @@ type Tab = 'linting' | 'metrics' | 'refactor';
 
 export const QualityTab: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('linting');
-  const { errorCount, warningCount } = useDiagnostics();
-  const { currentFile } = useRepository();
+  const { errorCount, warningCount, getFileDiagnostics } = useDiagnostics();
+  const { currentFile, updateFileContent } = useRepository();
   const { service } = useAIService();
 
   const [refactorSuggestions, setRefactorSuggestions] = useState<string | null>(null);
@@ -23,9 +23,16 @@ export const QualityTab: React.FC = () => {
 
     setIsLoading(true);
     try {
+      const diagnostics = getFileDiagnostics(currentFile.path).map((d) => ({
+        message: d.message,
+        startLine: d.startLine,
+        severity: d.severity,
+      }));
+
       const response = await service.refactor(
         currentFile.content,
-        currentFile.language || 'typescript'
+        currentFile.language || 'typescript',
+        diagnostics
       );
       setRefactorSuggestions(response);
     } catch (error) {
@@ -33,6 +40,14 @@ export const QualityTab: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleApplySuggestions = () => {
+    if (!currentFile || !refactorSuggestions) return;
+    // Clean up markdown blocks if present
+    const cleanCode = refactorSuggestions.replace(/^```[\w-]*\n|```$/g, '');
+    updateFileContent(currentFile.path, cleanCode);
+    setRefactorSuggestions(null); // Clear after applying
   };
 
   const tabs: { id: Tab; label: string; badge?: number }[] = [
@@ -112,8 +127,27 @@ export const QualityTab: React.FC = () => {
             )}
 
             {refactorSuggestions && (
-              <div className="flex-1 overflow-y-auto bg-[#252526] rounded p-4 text-sm text-gray-300 whitespace-pre-wrap font-mono">
-                {refactorSuggestions}
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="p-2 border-b border-[#3e3e42] flex items-center justify-between bg-[#252526] rounded-t">
+                  <span className="text-xs font-medium text-gray-400">Suggested Changes</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setRefactorSuggestions(null)}
+                      className="text-xs text-red-400 hover:text-red-300 px-2 py-1"
+                    >
+                      Discard
+                    </button>
+                    <button
+                      onClick={handleApplySuggestions}
+                      className="text-xs bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded"
+                    >
+                      Apply to Editor
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto bg-[#1e1e1e] border border-[#3e3e42] border-t-0 rounded-b p-4 text-sm text-gray-300 whitespace-pre-wrap font-mono relative">
+                  {refactorSuggestions}
+                </div>
               </div>
             )}
           </div>
