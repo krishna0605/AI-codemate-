@@ -40,7 +40,7 @@ ${context || 'No specific file context provided.'}
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama3.2',
+        model: 'llama3.2:1b',
         prompt: `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${systemPrompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n${lastMessage.content}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`,
         stream: true,
       }),
