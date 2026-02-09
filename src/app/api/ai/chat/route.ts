@@ -37,7 +37,7 @@ ${context || 'No specific file context provided.'}`.trim();
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'qwen2.5-coder:1.5b',
+          model: 'qwen2.5-coder:0.5b',
           prompt: `<|im_start|>system
 ${systemPrompt}<|im_end|}
 <|im_start|>user
