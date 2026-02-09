@@ -12,7 +12,7 @@ export interface AIConfig {
 export const PROVIDER_CONFIGS: Record<AIProvider, Partial<AIConfig>> = {
   gemini: {
     apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '',
-    model: 'gemini-2.0-flash',
+    model: 'gemini-flash-latest',
     maxTokens: 8192,
     temperature: 0.3,
   },
