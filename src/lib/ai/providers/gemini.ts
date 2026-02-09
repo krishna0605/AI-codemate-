@@ -6,15 +6,19 @@ export async function callGemini(prompt: string, config: AIConfig): Promise<stri
   const modelName = config.model || 'gemini-1.5-flash';
 
   try {
-    const text = await generateContent(prompt, modelName, {
+    const result = await generateContent(prompt, modelName, {
       maxOutputTokens: config.maxTokens,
       temperature: config.temperature,
     });
 
-    if (!text) {
+    if (!result.success) {
+      throw new Error(result.error);
+    }
+
+    if (!result.text) {
       return '';
     }
-    return text;
+    return result.text;
   } catch (error: any) {
     if (error.message.includes('GEMINI_API_KEY is not set')) {
       throw new Error(
