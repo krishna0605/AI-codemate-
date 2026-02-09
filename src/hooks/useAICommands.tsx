@@ -49,6 +49,34 @@ export function AICommandsProvider({ children }: { children: ReactNode }) {
 
   const { fileTree, openFiles, currentFile, repoOwner, repoName } = useRepository();
 
+  // Load chat history on mount
+  React.useEffect(() => {
+    if (repoName) {
+      const savedLines = localStorage.getItem(`chat_history_${repoName}`);
+      if (savedLines) {
+        try {
+          const parsed = JSON.parse(savedLines, (key, value) =>
+            key === 'timestamp' ? new Date(value) : value
+          );
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setLines(parsed);
+          }
+        } catch (e) {
+          console.error('Failed to parse chat history', e);
+        }
+      }
+    }
+  }, [repoName]);
+
+  // Save chat history on change
+  React.useEffect(() => {
+    if (repoName && lines.length > 0) {
+      // Don't save if it's just the initial welcome message?
+      // Actually, saving the welcome message is fine.
+      localStorage.setItem(`chat_history_${repoName}`, JSON.stringify(lines));
+    }
+  }, [lines, repoName]);
+
   const addLine = useCallback((type: AICommandLine['type'], content: string) => {
     setLines((prev) => [...prev, { id: generateId(), type, content, timestamp: new Date() }]);
   }, []);
