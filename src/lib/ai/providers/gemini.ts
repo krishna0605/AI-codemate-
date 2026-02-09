@@ -1,31 +1,26 @@
 import { AIConfig } from '../config';
+import { generateContent } from '@/app/actions/gemini';
 
 export async function callGemini(prompt: string, config: AIConfig): Promise<string> {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          maxOutputTokens: config.maxTokens,
-          temperature: config.temperature,
-        },
-      }),
+  // We prioritize the model from config, but fallback to 'gemini-1.5-flash' if needed
+  const modelName = config.model || 'gemini-1.5-flash';
+
+  try {
+    const text = await generateContent(prompt, modelName, {
+      maxOutputTokens: config.maxTokens,
+      temperature: config.temperature,
+    });
+
+    if (!text) {
+      return '';
     }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      `Gemini API Error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`
-    );
+    return text;
+  } catch (error: any) {
+    if (error.message.includes('GEMINI_API_KEY is not set')) {
+      throw new Error(
+        'Gemini API key is missing. Please ensure GEMINI_API_KEY is set in your .env file.'
+      );
+    }
+    throw new Error(`Gemini Error: ${error.message}`);
   }
-
-  const data = await response.json();
-  if (!data.candidates || data.candidates.length === 0) {
-    return '';
-  }
-  return data.candidates[0].content.parts[0].text;
 }
