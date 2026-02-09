@@ -30,32 +30,41 @@ export async function callHuggingFace(prompt: string, config: AIConfig): Promise
       throw new Error('No response body');
     }
 
+    let buffer = '';
+
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        // Process any remaining buffer content
+        if (buffer.trim()) {
+          try {
+            const json = JSON.parse(buffer);
+            if (json.response) result += json.response;
+          } catch (e) {
+            console.warn('Final buffer parse error:', e);
+          }
+        }
+        break;
+      }
+
       const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
 
-      // The Ollama response is a JSON stream: { "response": "word", "done": false }
-      // The proxy seems to forward the raw body from fetch(`${aiServiceUrl}/api/generate`).
-      // Let's verify what the proxy does.
-      // The proxy: return new Response(response.body);
-      // The HF Space (Ollama): returns JSON objects stream.
+      const lines = buffer.split('\n');
+      // Keep the last line in the buffer as it might be incomplete
+      buffer = lines.pop() || '';
 
-      // We need to parse the JSON objects.
-      const lines = chunk.split('\n').filter((line) => line.trim() !== '');
       for (const line of lines) {
+        if (line.trim() === '') continue;
         try {
           const json = JSON.parse(line);
           if (json.response) {
             result += json.response;
           }
-          if (json.done) {
-            // Done
-          }
         } catch (e) {
-          // It might be a partial chunk or plain text if something else happened.
-          // If it's valid JSON, good.
           console.warn('Error parsing JSON chunk:', e);
+          // If it fails, it might be that the split wasn't perfect, but usually ollama sends line-delimited JSON.
+          // If a chunk splits a line, 'buffer' handles it.
         }
       }
     }

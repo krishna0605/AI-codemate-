@@ -33,6 +33,6 @@ export const PROVIDER_CONFIGS: Record<AIProvider, Partial<AIConfig>> = {
     baseUrl: '/api/ai/chat', // Local proxy
     model: 'llama3.2:1b',
     maxTokens: 4096,
-    temperature: 0.7,
+    temperature: 0.5,
   },
 };
