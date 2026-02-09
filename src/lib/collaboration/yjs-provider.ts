@@ -2,6 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import * as Y from 'yjs';
 // @ts-ignore
 import SupabaseProvider from 'y-supabase/dist/index.js';
+// @ts-ignore
 import { SocketIOProvider } from 'y-socket.io/dist/client';
 
 export const createYjsProvider = (supabase: SupabaseClient, doc: Y.Doc, documentId: string) => {
