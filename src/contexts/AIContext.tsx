@@ -36,12 +36,12 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
         if (
           mergedConfig.provider === 'gemini' &&
           (mergedConfig.model === 'gemini-1.5-flash' ||
+            mergedConfig.model === 'gemini-1.5-flash-001' ||
             mergedConfig.model === 'gemini-pro' ||
-            mergedConfig.model === 'gemini-2.0-flash' ||
             mergedConfig.model === 'gemini-flash-latest')
         ) {
-          console.log('Migrating to valid model:', 'gemini-1.5-flash-001');
-          mergedConfig.model = 'gemini-1.5-flash-001';
+          console.log('Migrating to valid model:', 'gemini-2.0-flash');
+          mergedConfig.model = 'gemini-2.0-flash';
         }
 
         // If the saved provider doesn't have an API key, try to get it from defaults
