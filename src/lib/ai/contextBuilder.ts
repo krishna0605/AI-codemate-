@@ -47,18 +47,18 @@ export function buildContextPrompt(
   // 2. Project Description (README) - CRITICAL for "What is this project?"
   if (readmeContent) {
     parts.push(`\nProject Description (from README.md):`);
-    // Truncate if too long (e.g., 2000 chars) to save tokens but keep the gist
-    parts.push(readmeContent.slice(0, 3000));
+    // Truncate to save tokens (1500 chars for faster inference)
+    parts.push(readmeContent.slice(0, 1500));
   }
 
   // 3. File Structure (Simplified)
   // We provide a list of file paths so the AI knows what exists.
   const allPaths = flattenFileTree(fileTree);
   if (allPaths.length > 0) {
-    parts.push(`\nRepository Structure (First 100 files):`);
-    parts.push(allPaths.slice(0, 100).join('\n'));
-    if (allPaths.length > 100) {
-      parts.push(`... and ${allPaths.length - 100} more files.`);
+    parts.push(`\nRepository Structure (First 50 files):`);
+    parts.push(allPaths.slice(0, 50).join('\n'));
+    if (allPaths.length > 50) {
+      parts.push(`... and ${allPaths.length - 50} more files.`);
     }
   }
 

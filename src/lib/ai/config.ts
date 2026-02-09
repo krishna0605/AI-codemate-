@@ -32,7 +32,7 @@ export const PROVIDER_CONFIGS: Record<AIProvider, Partial<AIConfig>> = {
   huggingface: {
     baseUrl: '/api/ai/chat', // Local proxy
     model: 'qwen2.5-coder:1.5b',
-    maxTokens: 4096,
+    maxTokens: 1024, // Reduced for faster CPU inference
     temperature: 0.5,
   },
 };
