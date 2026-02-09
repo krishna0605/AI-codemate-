@@ -7,6 +7,18 @@ import { useAICommands } from '@/hooks/useAICommands';
 import { QualityTab } from '@/components/quality';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 
+// Learning Components
+import { TutorialPlayer, TipOfTheDay, ChallengeMode } from '@/components/learning';
+
+// Productivity Components
+import { SnippetLibrary, TemplateGallery, ShortcutsPanel } from '@/components/productivity';
+
+// Integration Components
+import { APITester, DatabaseExplorer, DeploymentPanel } from '@/components/integrations';
+
+// UI Components
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+
 // Type definition (was previously in PreviewPane.tsx)
 export interface SelectedElementData {
   tagName: string;
@@ -21,6 +33,11 @@ interface RightSidebarProps {
   onOpenInEditor: () => void;
 }
 
+type SidebarMode = 'ai' | 'inspector' | 'quality' | 'learn' | 'snippets' | 'integrations';
+type LearnTab = 'tutorials' | 'tips' | 'challenges';
+type IntegrationTab = 'api' | 'database' | 'deploy';
+type SnippetTab = 'snippets' | 'templates' | 'shortcuts';
+
 const RightSidebar: React.FC<RightSidebarProps> = ({
   selectedElement,
   onUpdateElement,
@@ -28,9 +45,14 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
 }) => {
   const [width, setWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ai' | 'inspector' | 'quality'>('ai');
+  const [activeMode, setActiveMode] = useState<SidebarMode>('ai');
   const [stylesExpanded, setStylesExpanded] = useState(false);
   const { errorCount, warningCount } = useDiagnostics();
+
+  // Sub-tabs state
+  const [learnTab, setLearnTab] = useState<LearnTab>('tutorials');
+  const [integrationTab, setIntegrationTab] = useState<IntegrationTab>('api');
+  const [snippetTab, setSnippetTab] = useState<SnippetTab>('snippets');
 
   // AI Chat State
   const { lines, currentInput, setCurrentInput, executeCommand, isProcessing } = useAICommands();
@@ -39,16 +61,38 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [lines]);
+  }, [lines, activeMode]);
 
   const handleSend = () => {
     if (!currentInput.trim()) return;
     executeCommand(currentInput);
   };
 
-  // ... (Inspector State) ...
+  // Resize Logic
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = window.innerWidth - e.clientX;
+        setWidth(Math.max(250, Math.min(800, newWidth)));
+      }
+    };
 
-  // ... (Resize Logic) ...
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ew-resize';
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'default';
+    };
+  }, [isResizing]);
 
   const handleStyleChange = (key: string, value: string) => {
     if (!selectedElement) return;
@@ -74,64 +118,101 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         onMouseDown={() => setIsResizing(true)}
       />
 
-      {/* Tabs Header */}
-      <div className="flex border-b border-border-dark bg-surface-dark z-10">
-        <button
-          onClick={() => setActiveTab('ai')}
-          className={cn(
-            'flex-1 py-3 text-xs font-medium transition-all flex items-center justify-center gap-2 relative',
-            activeTab === 'ai'
-              ? 'text-white bg-background-dark/30'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-surface-hover'
-          )}
-        >
-          <span className="material-symbols-outlined text-[18px]">smart_toy</span>
-          AI Assistant
-          {activeTab === 'ai' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('inspector')}
-          className={cn(
-            'flex-1 py-3 text-xs font-medium transition-all flex items-center justify-center gap-2 relative',
-            activeTab === 'inspector'
-              ? 'text-white bg-background-dark/30'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-surface-hover'
-          )}
-        >
-          <span className="material-symbols-outlined text-[18px]">data_object</span>
-          Inspector
-          {activeTab === 'inspector' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('quality')}
-          className={cn(
-            'flex-1 py-3 text-xs font-medium transition-all flex items-center justify-center gap-2 relative',
-            activeTab === 'quality'
-              ? 'text-white bg-background-dark/30'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-surface-hover'
-          )}
-        >
-          <span className="material-symbols-outlined text-[18px]">bug_report</span>
-          Quality
-          {errorCount + warningCount > 0 && (
-            <span className="bg-red-500 text-white text-[9px] px-1 rounded-full min-w-[14px] text-center">
-              {errorCount + warningCount}
-            </span>
-          )}
-          {activeTab === 'quality' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
-          )}
-        </button>
+      <div className="p-3 border-b border-border-dark bg-surface-dark z-10">
+        <Select value={activeMode} onValueChange={(v) => setActiveMode(v as SidebarMode)}>
+          <SelectTrigger className="w-full bg-background-dark border-border-dark text-slate-300">
+            {activeMode === 'ai' && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">smart_toy</span>
+                AI Assistant
+              </div>
+            )}
+            {activeMode === 'inspector' && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">data_object</span>
+                Inspector
+              </div>
+            )}
+            {activeMode === 'quality' && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">bug_report</span>
+                Quality
+                {errorCount + warningCount > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
+                    {errorCount + warningCount}
+                  </span>
+                )}
+              </div>
+            )}
+            {activeMode === 'learn' && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">school</span>
+                Learn & Discover
+              </div>
+            )}
+            {activeMode === 'snippets' && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">data_object</span>
+                Code Tools
+              </div>
+            )}
+            {activeMode === 'integrations' && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">extension</span>
+                Integrations
+              </div>
+            )}
+          </SelectTrigger>
+          <SelectContent className="bg-surface-dark border-border-dark text-slate-300">
+            <SelectItem value="ai">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">smart_toy</span>
+                AI Assistant
+              </div>
+            </SelectItem>
+            <SelectItem value="inspector">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">data_object</span>
+                Inspector
+              </div>
+            </SelectItem>
+            <SelectItem value="quality">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">bug_report</span>
+                Quality
+                {errorCount + warningCount > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-[10px] px-1.5 rounded-full">
+                    {errorCount + warningCount}
+                  </span>
+                )}
+              </div>
+            </SelectItem>
+            <SelectItem value="learn">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">school</span>
+                Learn & Discover
+              </div>
+            </SelectItem>
+            <SelectItem value="snippets">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">data_object</span>
+                Code Tools
+              </div>
+            </SelectItem>
+            <SelectItem value="integrations">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">extension</span>
+                Integrations
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Tab Content */}
+      {/* Content Area */}
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
         {/* --- AI Tab --- */}
-        {activeTab === 'ai' && (
+        {activeMode === 'ai' && (
           <div className="flex flex-col h-full animate-in fade-in duration-300">
             <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin bg-background-dark/20">
               {lines.map((msg) => (
@@ -207,7 +288,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         )}
 
         {/* --- Inspector Tab --- */}
-        {activeTab === 'inspector' && (
+        {activeMode === 'inspector' && (
           <div className="flex flex-col h-full animate-in fade-in duration-300">
             {selectedElement ? (
               <>
@@ -336,9 +417,92 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         )}
 
         {/* --- Quality Tab --- */}
-        {activeTab === 'quality' && (
+        {activeMode === 'quality' && (
           <div className="h-full animate-in fade-in duration-300">
             <QualityTab />
+          </div>
+        )}
+
+        {/* --- Learn Tab --- */}
+        {activeMode === 'learn' && (
+          <div className="flex flex-col h-full animate-in fade-in duration-300">
+            <div className="flex border-b border-border-dark bg-background-dark/20">
+              {(['tutorials', 'tips', 'challenges'] as LearnTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setLearnTab(tab)}
+                  className={cn(
+                    'flex-1 py-2 text-[10px] font-medium transition-colors uppercase tracking-wider',
+                    learnTab === tab
+                      ? 'text-white border-b-2 border-primary bg-primary/10'
+                      : 'text-slate-500 hover:text-slate-300'
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {learnTab === 'tutorials' && <TutorialPlayer />}
+              {learnTab === 'tips' && <TipOfTheDay />}
+              {learnTab === 'challenges' && <ChallengeMode />}
+            </div>
+          </div>
+        )}
+
+        {/* --- Snippets Tab --- */}
+        {activeMode === 'snippets' && (
+          <div className="flex flex-col h-full animate-in fade-in duration-300">
+            <div className="flex border-b border-border-dark bg-background-dark/20">
+              {(['snippets', 'templates', 'shortcuts'] as SnippetTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setSnippetTab(tab)}
+                  className={cn(
+                    'flex-1 py-2 text-[10px] font-medium transition-colors uppercase tracking-wider',
+                    snippetTab === tab
+                      ? 'text-white border-b-2 border-primary bg-primary/10'
+                      : 'text-slate-500 hover:text-slate-300'
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {snippetTab === 'snippets' && (
+                <SnippetLibrary onInsertSnippet={(code) => console.log('Insert:', code)} />
+              )}
+              {snippetTab === 'templates' && <TemplateGallery />}
+              {snippetTab === 'shortcuts' && <ShortcutsPanel />}
+            </div>
+          </div>
+        )}
+
+        {/* --- Integrations Tab --- */}
+        {activeMode === 'integrations' && (
+          <div className="flex flex-col h-full animate-in fade-in duration-300">
+            <div className="flex border-b border-border-dark bg-background-dark/20">
+              {(['api', 'database', 'deploy'] as IntegrationTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setIntegrationTab(tab)}
+                  className={cn(
+                    'flex-1 py-2 text-[10px] font-medium transition-colors uppercase tracking-wider',
+                    integrationTab === tab
+                      ? 'text-white border-b-2 border-primary bg-primary/10'
+                      : 'text-slate-500 hover:text-slate-300'
+                  )}
+                >
+                  {tab === 'api' ? 'API' : tab === 'database' ? 'DB' : 'Deploy'}
+                </button>
+              ))}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {integrationTab === 'api' && <APITester />}
+              {integrationTab === 'database' && <DatabaseExplorer />}
+              {integrationTab === 'deploy' && <DeploymentPanel />}
+            </div>
           </div>
         )}
       </div>

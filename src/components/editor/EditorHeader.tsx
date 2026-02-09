@@ -16,15 +16,9 @@ interface EditorHeaderProps {
   setIsInspectorActive?: (active: boolean) => void;
   currentRepo?: Repo | null;
   onHomeClick?: () => void;
-  onOpenFeaturePanel?: (panel: 'learn' | 'snippets' | 'integrations') => void;
 }
 
-const EditorHeader: React.FC<EditorHeaderProps> = ({
-  onMenuClick,
-  currentRepo,
-  onHomeClick,
-  onOpenFeaturePanel,
-}) => {
+const EditorHeader: React.FC<EditorHeaderProps> = ({ onMenuClick, currentRepo, onHomeClick }) => {
   const { user, logout, loading } = useAuth();
   const { repoOwner, repoName, selectedFilePath, defaultBranch } = useRepository();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -208,40 +202,6 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
       {/* Right: User Actions */}
       <div className="flex items-center gap-3 justify-end shrink-0">
         {/* Feature Toolbar Buttons */}
-        <div className="flex items-center gap-1">
-          <Tooltip content="Learn - Tutorials & Challenges">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-slate-400 hover:text-white hover:bg-surface-hover"
-              onClick={() => onOpenFeaturePanel?.('learn')}
-            >
-              <span className="material-symbols-outlined text-[18px]">school</span>
-            </Button>
-          </Tooltip>
-
-          <Tooltip content="Snippets & Templates">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-slate-400 hover:text-white hover:bg-surface-hover"
-              onClick={() => onOpenFeaturePanel?.('snippets')}
-            >
-              <span className="material-symbols-outlined text-[18px]">data_object</span>
-            </Button>
-          </Tooltip>
-
-          <Tooltip content="Integrations - API, Database, Deploy">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-slate-400 hover:text-white hover:bg-surface-hover"
-              onClick={() => onOpenFeaturePanel?.('integrations')}
-            >
-              <span className="material-symbols-outlined text-[18px]">extension</span>
-            </Button>
-          </Tooltip>
-        </div>
 
         <div className="h-4 w-px bg-border-dark"></div>
 

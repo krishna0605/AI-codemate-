@@ -6,13 +6,7 @@ import EditorHeader from '@/components/editor/EditorHeader';
 import EditorSidebar from '@/components/editor/EditorSidebar';
 import EditorPane from '@/components/editor/EditorPane';
 import RightSidebar, { SelectedElementData } from '@/components/editor/RightSidebar';
-import dynamic from 'next/dynamic';
-import { FeaturePanelType } from '@/components/editor/FeaturePanel';
 
-const FeaturePanel = dynamic(
-  () => import('@/components/editor/FeaturePanel').then((mod) => mod.FeaturePanel),
-  { loading: () => null }
-);
 import EditorFooter from '@/components/editor/EditorFooter';
 import LandingPage from '@/components/editor/LandingPage';
 import { Repo } from '@/components/editor/GitHubRepoModal';
@@ -20,37 +14,6 @@ import { useRepository } from '@/hooks/useRepository';
 import { DiagnosticsProvider } from '@/hooks/useDiagnostics';
 import { AICommandsProvider } from '@/hooks/useAICommands';
 import { ActivityLogProvider } from '@/hooks/useActivityLog';
-
-// Terminal Panel Component (Placeholder - will be enhanced with AI features)
-const TerminalPanel: React.FC<{ isCollapsed: boolean; onToggleCollapse: () => void }> = ({
-  isCollapsed,
-  onToggleCollapse,
-}) => (
-  <div className="flex flex-col h-full">
-    <div className="flex items-center justify-between px-3 py-2 bg-surface-dark border-b border-border-dark">
-      <div className="flex items-center gap-2">
-        <span className="material-symbols-outlined text-slate-400 text-[16px]">terminal</span>
-        <span className="text-xs font-medium text-slate-300">Terminal</span>
-      </div>
-      <button
-        onClick={onToggleCollapse}
-        className="p-1 hover:bg-surface-hover rounded transition-colors"
-      >
-        <span className="material-symbols-outlined text-slate-400 text-[16px]">
-          {isCollapsed ? 'expand_less' : 'expand_more'}
-        </span>
-      </button>
-    </div>
-    {!isCollapsed && (
-      <div className="flex-1 flex items-center justify-center bg-[#1e1e1e] text-slate-500">
-        <div className="text-center">
-          <span className="material-symbols-outlined text-3xl mb-2 opacity-50">terminal</span>
-          <p className="text-xs">Terminal output will appear here</p>
-        </div>
-      </div>
-    )}
-  </div>
-);
 
 export default function EditorPage() {
   // State for Navigation between Landing and Editor
@@ -65,13 +28,9 @@ export default function EditorPage() {
     start: number;
     end: number;
   } | null>(null);
-  const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(false);
 
   // Selected element state (kept for inspector compatibility, will be used by AI features)
   const [selectedElement, setSelectedElement] = useState<SelectedElementData | null>(null);
-
-  // Feature Panel state
-  const [activeFeaturePanel, setActiveFeaturePanel] = useState<FeaturePanelType>(null);
 
   // Repository context
   const { loadRepository, clearRepository } = useRepository();
@@ -115,38 +74,10 @@ export default function EditorPage() {
     }
   };
 
-  // Resizing State
-  const [terminalHeight, setTerminalHeight] = useState(192);
-  const [isDraggingV, setIsDraggingV] = useState(false);
+  // Resizing State deleted
   const mainRef = useRef<HTMLDivElement>(null);
 
   // Handle Resize Events
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDraggingV) {
-        const newHeight = window.innerHeight - e.clientY;
-        setTerminalHeight(Math.max(36, Math.min(800, newHeight)));
-        e.preventDefault();
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDraggingV(false);
-      document.body.style.cursor = 'default';
-    };
-
-    if (isDraggingV) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'row-resize';
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'default';
-    };
-  }, [isDraggingV]);
 
   // If showing landing page, render it
   if (showLanding) {
@@ -181,7 +112,6 @@ export default function EditorPage() {
                 setIsInspectorActive={() => {}}
                 currentRepo={currentRepo}
                 onHomeClick={handleHomeClick}
-                onOpenFeaturePanel={setActiveFeaturePanel}
               />
 
               {/* Main Workspace */}
@@ -202,30 +132,6 @@ export default function EditorPage() {
                   </div>
 
                   {/* Vertical Resizer (For Terminal) */}
-                  <div
-                    className="h-1 hover:h-1.5 w-full bg-border-dark hover:bg-primary/50 cursor-row-resize z-50 transition-colors -mt-0.5 relative flex items-center justify-center group"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      setIsDraggingV(true);
-                    }}
-                  >
-                    {/* Visual handle indicator */}
-                    <div className="w-12 h-1 rounded-full bg-slate-700 group-hover:bg-primary/80 hidden group-hover:block transition-all"></div>
-                  </div>
-
-                  {/* Bottom Half: Terminal */}
-                  <div
-                    className="bg-surface-dark border-t border-border-dark flex flex-col shrink-0 z-10"
-                    style={{
-                      height: isTerminalCollapsed ? '36px' : `${terminalHeight}px`,
-                      transition: isDraggingV ? 'none' : 'height 0.2s ease',
-                    }}
-                  >
-                    <TerminalPanel
-                      isCollapsed={isTerminalCollapsed}
-                      onToggleCollapse={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
-                    />
-                  </div>
                 </main>
 
                 {/* Right Sidebar (AI & Inspector) */}
@@ -242,9 +148,6 @@ export default function EditorPage() {
           </ActivityLogProvider>
         </AICommandsProvider>
       </DiagnosticsProvider>
-
-      {/* Feature Panel Modal */}
-      <FeaturePanel activePanel={activeFeaturePanel} onClose={() => setActiveFeaturePanel(null)} />
     </>
   );
 }
