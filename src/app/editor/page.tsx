@@ -102,7 +102,7 @@ export default function EditorPage() {
       <DiagnosticsProvider>
         <AICommandsProvider>
           <ActivityLogProvider>
-            <div className="hidden lg:flex flex-col h-screen overflow-hidden font-sans bg-background-dark text-slate-300 selection:bg-primary/20 selection:text-primary animate-in fade-in duration-700">
+            <div className="hidden lg:flex flex-col h-screen overflow-hidden font-sans bg-background-dark text-slate-300 selection:bg-primary/20 selection:text-primary animate-in fade-in duration-300">
               {/* Top Navigation - viewMode props removed since we're code-only now */}
               <EditorHeader
                 viewMode="code"

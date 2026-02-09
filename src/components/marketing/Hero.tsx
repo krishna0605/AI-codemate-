@@ -109,7 +109,7 @@ const Hero: React.FC = () => {
         <div className="@container">
           <div className="flex flex-col-reverse gap-10 lg:flex-row items-center justify-between">
             {/* Left Content */}
-            <div className="flex flex-col gap-6 flex-1 text-center lg:text-left z-10 max-w-[600px] animate-fade-in-up">
+            <div className="flex flex-col gap-6 flex-1 text-center lg:text-left z-10 max-w-[600px] animate-fade-in-quick">
               <div className="flex flex-col gap-4">
                 <div className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary transition-colors focus:outline-none w-fit mx-auto lg:mx-0">
                   Now in Public Beta

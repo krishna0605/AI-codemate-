@@ -20,10 +20,17 @@
 }
 
 body {
-  @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-50 antialiased transition-colors duration-300;
+  @apply bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-50 antialiased;
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Use this class only after initial hydration for smooth theme transitions */
+.theme-transition {
+  transition:
+    background-color 300ms,
+    color 300ms;
 }
 
 /* Animation delay utilities */

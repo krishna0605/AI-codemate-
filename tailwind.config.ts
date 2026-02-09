@@ -47,6 +47,7 @@ const config: Config = {
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in-quick': 'fadeInQuick 0.3s ease-out forwards',
         float: 'float 6s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
         blob: 'blob 7s infinite',
@@ -58,6 +59,10 @@ const config: Config = {
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInQuick: {
+          '0%': { opacity: '0.8' },
+          '100%': { opacity: '1' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },

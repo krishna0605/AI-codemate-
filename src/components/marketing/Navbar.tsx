@@ -5,9 +5,11 @@ import Link from 'next/link';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check initial theme state
     const isDarkMode = document.documentElement.classList.contains('dark');
     setIsDark(isDarkMode);
@@ -15,6 +17,9 @@ const Navbar: React.FC = () => {
 
   const toggleTheme = () => {
     const html = document.documentElement;
+    // Add transition class for smooth effect when toggling manually
+    document.body.classList.add('theme-transition');
+
     if (html.classList.contains('dark')) {
       html.classList.remove('dark');
       localStorage.setItem('theme', 'light');
@@ -24,7 +29,15 @@ const Navbar: React.FC = () => {
       localStorage.setItem('theme', 'dark');
       setIsDark(true);
     }
+
+    // Remove transition class after animation completes to avoid impacting other unrelated changes
+    setTimeout(() => {
+      document.body.classList.remove('theme-transition');
+    }, 300);
   };
+
+  // Prevent hydration mismatch by not rendering theme-dependent UI until mounted
+  const themeIcon = mounted ? (isDark ? 'light_mode' : 'dark_mode') : 'contrast';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-solid border-slate-200 dark:border-border-dark bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md transition-colors duration-300">
@@ -70,9 +83,7 @@ const Navbar: React.FC = () => {
                   className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                   aria-label="Toggle theme"
                 >
-                  <span className="material-symbols-outlined text-[20px]">
-                    {isDark ? 'light_mode' : 'dark_mode'}
-                  </span>
+                  <span className="material-symbols-outlined text-[20px]">{themeIcon}</span>
                 </button>
 
                 <Link
@@ -91,9 +102,7 @@ const Navbar: React.FC = () => {
                 className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors focus-visible:outline-none"
                 aria-label="Toggle theme"
               >
-                <span className="material-symbols-outlined text-[20px]">
-                  {isDark ? 'light_mode' : 'dark_mode'}
-                </span>
+                <span className="material-symbols-outlined text-[20px]">{themeIcon}</span>
               </button>
 
               {/* Mobile Menu Toggle */}

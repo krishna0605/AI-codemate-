@@ -64,7 +64,7 @@ const Login: React.FC = () => {
       <main className="flex-1 flex items-center justify-center px-4 py-12 z-10">
         <div className="w-full max-w-[440px]">
           <div className="bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl shadow-2xl p-8 md:p-10">
-            <div className="text-center mb-8 animate-fade-in-up">
+            <div className="text-center mb-8 animate-fade-in-quick">
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 Welcome back
               </h1>
@@ -73,7 +73,7 @@ const Login: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6 animate-fade-in-up delay-100">
+            <div className="grid grid-cols-2 gap-4 mb-6 animate-fade-in-quick delay-100">
               <button
                 onClick={() => handleOAuthLogin('google')}
                 disabled={loading}
@@ -115,7 +115,7 @@ const Login: React.FC = () => {
               </button>
             </div>
 
-            <div className="relative mb-6 animate-fade-in-up delay-150">
+            <div className="relative mb-6 animate-fade-in-quick delay-100">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-slate-200 dark:border-border-dark"></span>
               </div>
@@ -127,7 +127,7 @@ const Login: React.FC = () => {
             </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
-              <div className="space-y-2 animate-fade-in-up delay-200">
+              <div className="space-y-2 animate-fade-in-quick delay-200">
                 <label
                   className="text-sm font-medium text-slate-700 dark:text-slate-300"
                   htmlFor="email"
@@ -144,7 +144,7 @@ const Login: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div className="space-y-2 animate-fade-in-up delay-300">
+              <div className="space-y-2 animate-fade-in-quick delay-200">
                 <div className="flex items-center justify-between">
                   <label
                     className="text-sm font-medium text-slate-700 dark:text-slate-300"
@@ -182,7 +182,7 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center animate-fade-in-up delay-400">
+              <div className="flex items-center animate-fade-in-quick delay-300">
                 <input
                   id="remember-me"
                   type="checkbox"
@@ -199,7 +199,7 @@ const Login: React.FC = () => {
               </div>
 
               <button
-                className={`w-full h-11 rounded-lg bg-primary text-primary-foreground font-bold text-base shadow-lg shadow-primary/20 transition-all duration-200 flex items-center justify-center animate-fade-in-up delay-500 ${
+                className={`w-full h-11 rounded-lg bg-primary text-primary-foreground font-bold text-base shadow-lg shadow-primary/20 transition-all duration-200 flex items-center justify-center animate-fade-in-quick delay-300 ${
                   loading
                     ? 'opacity-70 cursor-not-allowed'
                     : 'hover:bg-primary-dark hover:shadow-primary/30 hover:translate-y-[-1px]'
@@ -233,7 +233,7 @@ const Login: React.FC = () => {
                 )}
               </button>
 
-              <div className="text-center text-sm text-slate-600 dark:text-slate-400 mt-4 animate-fade-in-up delay-600">
+              <div className="text-center text-sm text-slate-600 dark:text-slate-400 mt-4 animate-fade-in-quick delay-300">
                 Don&apos;t have an account?
                 <Link
                   href="/signup"
@@ -244,7 +244,7 @@ const Login: React.FC = () => {
               </div>
             </form>
 
-            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-border-dark animate-fade-in-up delay-700">
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-border-dark animate-fade-in-quick delay-300">
               <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <span className="material-symbols-outlined text-sm">lock</span>
                 <span>Secured by enterprise-grade encryption</span>

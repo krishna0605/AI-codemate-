@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import GitHubRepoModal, { Repo } from './GitHubRepoModal';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchGitHubRepos, formatRelativeTime, GitHubRepo } from '@/lib/github';
@@ -116,11 +117,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
               settings
             </span>
 
-            <div className="size-8 rounded-full bg-gradient-to-tr from-primary to-emerald-600 p-[1px]">
-              <div className="rounded-full bg-black p-0.5 w-full h-full flex items-center justify-center text-primary text-xs font-bold">
-                {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+            {loading ? (
+              <Skeleton variant="circular" className="size-8" />
+            ) : (
+              <div className="size-8 rounded-full bg-gradient-to-tr from-primary to-emerald-600 p-[1px]">
+                <div className="rounded-full bg-black p-0.5 w-full h-full flex items-center justify-center text-primary text-xs font-bold">
+                  {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </nav>
 
@@ -129,7 +134,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           {/* Background Glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-          <div className="max-w-4xl w-full text-center z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="max-w-4xl w-full text-center z-10 animate-fade-in-quick">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">
               Meet AI CodeMate: your autonomous <br />
               coding agent.
