@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { FileTreeNode, fetchRepoTree, fetchFileContent, getLanguageFromPath } from '@/lib/github';
 import { useAuth } from './useAuth';
+import { toast } from '@/components/ui/toast-provider';
 
 // Types
 export interface OpenFile {
@@ -172,7 +173,9 @@ export function RepositoryProvider({ children }: { children: ReactNode }) {
         setOpenFiles((prev) => [...prev, file]);
       } catch (error) {
         console.error('Failed to load file:', error);
-        setFileError(error instanceof Error ? error.message : 'Failed to load file');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load file';
+        setFileError(errorMessage);
+        toast.error(`Error loading file: ${errorMessage}`);
       } finally {
         setIsLoadingFile(false);
       }

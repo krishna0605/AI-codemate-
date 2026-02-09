@@ -195,24 +195,47 @@ export async function fetchFileContent(
   repo: string,
   path: string
 ): Promise<{ content: string; sha: string }> {
-  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/vnd.github.v3+json',
-    },
-  });
+  // Add 15s timeout to prevent infinite loading
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch file: ${response.statusText}`);
+  try {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error(`File not found: ${path}`);
+      }
+      if (response.status === 403) {
+        throw new Error('Access denied (403). Check your token permissions.');
+      }
+      throw new Error(`Failed to fetch file (${response.status}): ${response.statusText}`);
+    }
+
+    const data: GitHubFileContent = await response.json();
+
+    // Decode base64 content and return with SHA
+    return {
+      content: decodeBase64(data.content),
+      sha: data.sha,
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please check your internet connection.');
+      }
+    }
+    throw error;
   }
-
-  const data: GitHubFileContent = await response.json();
-
-  // Decode base64 content and return with SHA
-  return {
-    content: decodeBase64(data.content),
-    sha: data.sha,
-  };
 }
 
 /**
