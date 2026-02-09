@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { useAIService } from '@/contexts/AIContext';
 import { useRepository } from '@/hooks/useRepository';
+import { useAuth } from '@/hooks/useAuth';
+import { fetchFileContent } from '@/lib/github';
 import { buildContextPrompt } from '@/lib/ai/contextBuilder';
 
 export interface AICommandLine {
@@ -51,6 +53,8 @@ export function AICommandsProvider({ children }: { children: ReactNode }) {
     setLines((prev) => [...prev, { id: generateId(), type, content, timestamp: new Date() }]);
   }, []);
 
+  const { providerToken } = useAuth(); // Get token
+
   const executeCommand = useCallback(
     async (command: string) => {
       const trimmedCmd = command.trim();
@@ -69,7 +73,6 @@ export function AICommandsProvider({ children }: { children: ReactNode }) {
 
       try {
         // Create message history for context
-        // Note: We use 'lines' from the closure. It doesn't contain the just-added user command.
         const messages = lines
           .filter((l) => l.type === 'user' || l.type === 'assistant')
           .map((l) => ({
@@ -77,11 +80,37 @@ export function AICommandsProvider({ children }: { children: ReactNode }) {
             parts: l.content,
           }));
 
+        // Fetch README.md for context
+        let readmeContent = null;
+        if (repoOwner && repoName && providerToken) {
+          try {
+            // Find README case-insensitively
+            const readmePath = fileTree.find((n) => n.name.toLowerCase() === 'readme.md')?.path;
+            if (readmePath) {
+              const { content } = await fetchFileContent(
+                providerToken,
+                repoOwner,
+                repoName,
+                readmePath
+              );
+              readmeContent = content;
+            }
+          } catch (e) {
+            console.warn('Failed to fetch README for context:', e);
+          }
+        }
+
         // Build context prompt
-        const contextPrompt = buildContextPrompt(fileTree, openFiles, currentFile, {
-          owner: repoOwner,
-          name: repoName,
-        });
+        const contextPrompt = buildContextPrompt(
+          fileTree,
+          openFiles,
+          currentFile,
+          {
+            owner: repoOwner,
+            name: repoName,
+          },
+          readmeContent
+        );
 
         // Call AI Service with context
         const response = await service.chat(messages, command, contextPrompt);
@@ -97,7 +126,7 @@ export function AICommandsProvider({ children }: { children: ReactNode }) {
         setIsProcessing(false);
       }
     },
-    [lines, addLine, service, fileTree, openFiles, currentFile, repoOwner, repoName]
+    [lines, addLine, service, fileTree, openFiles, currentFile, repoOwner, repoName, providerToken]
   );
 
   const clearCommands = useCallback(() => {
