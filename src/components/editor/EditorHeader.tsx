@@ -245,17 +245,6 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
 
         <div className="h-4 w-px bg-border-dark"></div>
 
-        {/* AI Features Indicator - Coming Soon */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg">
-          <span className="material-symbols-outlined text-primary text-[16px]">smart_toy</span>
-          <span className="text-xs font-medium text-primary">AI Features</span>
-          <span className="text-[10px] text-primary/60 bg-primary/10 px-1.5 py-0.5 rounded">
-            Coming Soon
-          </span>
-        </div>
-
-        <div className="h-4 w-px bg-border-dark"></div>
-
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
